@@ -1,6 +1,7 @@
 from agentkit.client import ApiClient
 import time
 import random
+from datetime import datetime
 
 # Define your custom data-fetching logic here
 # This function should return a dictionary representing the data payload
@@ -14,6 +15,8 @@ if __name__ == "__main__":
     # Start the main loop to fetch and post data every 3600 seconds
     while True:
         data = fake_fetch()
-        response = client.post_reading(data)
+        # attach a timestamp indicating when the data was collected
+        response = client.post_reading(data, timestamp=datetime.utcnow())
         print("Data sent successfully:", response)
+        # adjust the sleep interval as needed (in seconds)
         time.sleep(3600)

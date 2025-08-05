@@ -1,6 +1,7 @@
 
 
 import os
+from datetime import datetime
 import requests
 
 class ApiClient:
@@ -29,8 +30,19 @@ class ApiClient:
             f.write(token)
         return token
 
-    def post_reading(self, data: dict) -> dict:
-        response = requests.post(f"{self.base_url}/agent/readings", json={"data": data}, headers=self._auth_headers())
+    def post_reading(self, data: dict, timestamp: datetime | None = None) -> dict:
+        """
+        Send a data reading to the server.  An optional ``timestamp`` may be
+        provided to indicate when the data was collected.  If ``timestamp``
+        is provided, it should be a ``datetime`` instance and will be
+        serialised to ISO 8601.  The API will fall back to the current time
+        when no timestamp is included.
+        """
+        payload: dict[str, object] = {"data": data}
+        if timestamp:
+            # Convert to ISO 8601 string so FastAPI/Pydantic can parse it
+            payload["timestamp"] = timestamp.isoformat()
+        response = requests.post(f"{self.base_url}/agent/readings", json=payload, headers=self._auth_headers())
         response.raise_for_status()
         return response.json()
 
